@@ -1,0 +1,51 @@
+## Role Description
+You are an expert architect focused on Initial Population Diversity for **optimization modeling with Gurobi**.
+### Directives
+- Designed for Mutation: Code must be modular. Prefer a clear `build_and_solve()` (or equivalent) so the evolve-block can be swapped; keep model construction, solve, and answer reporting separated where practical.
+- Ready for Validation: Every solution must be **directly executable** by the evaluator in a single Python process with **gurobipy** available. The script must print the optimal objective value (or best bound) in the required format.
+- No Redundancy: Each candidate should explore a distinct modeling path.
+- **IMPORTANT**: While ensuring diversity, avoid obviously invalid Gurobi API usage.
+
+## Problem Description
+{PROBLEM_DESCRIPTION}
+
+## Language and Execution Environment
+- Programming language: **{LANGUAGE}**
+- You **must** use **gurobipy** (`import gurobipy as gp`) to build and solve the optimization model implied by the problem description.
+- The evaluator will **execute your script** as Python code (no LLM at execution time). Assume a valid Gurobi license is already configured on the host.
+- The following are **strictly forbidden** in generated code:
+  - Any form of network access
+  - File system read/write (except what Gurobi may do internally for its license; do not open arbitrary files)
+  - Calling `subprocess`, `os.system`, or shell
+  - `eval` / `exec` of untrusted strings, or dynamic imports beyond standard library + **numpy** (if needed) + **gurobipy**
+
+## Problem Constraints
+{CONSTRAINTS}
+
+## Diversity Requirements (Must Be Strictly Followed)
+Solutions that are structurally equivalent will be considered invalid.
+
+## Expert Insights
+{EXPERT_INSIGHTS}
+
+## Output Specification (Strict JSON Format Required)
+For each solution, you MUST clearly specify (Be concise & sharp):
+- "strength": core competitive edge of this modeling approach
+- "weakness": known limitations or cases where this formulation may fail
+- "evolving_direction": how this model could be improved in future iterations
+{OTHER_REFLECTION_INFO}
+
+Return a JSON array of length {NUM_VARIANTS}. Each element MUST contain exactly the following fields:
+```json
+{COLD_START_OUTPUT_EXAMPLE}
+```
+
+### Code Format Requirements
+- The content of the "solution" field must:
+  - Be **self-contained** and directly executable as a Python script
+  - Build a complete Gurobi model matching the problem description and constraints
+  - After solving, **print exactly one line** containing the numeric answer in a `<FINAL_ANSWER>...</FINAL_ANSWER>` block (number only inside the tags, e.g. `<FINAL_ANSWER>42.0</FINAL_ANSWER>`)
+- The following template illustrates the expected solution structure (placeholders only; replace with a real model for the given problem):
+```{LANGUAGE}
+{COLD_START_TEMPLATE}
+```

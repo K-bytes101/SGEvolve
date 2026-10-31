@@ -1,0 +1,3 @@
+## Task Context & Constraints
+{MEDIUM_OR_FORMAT}
+{OPERATIONAL_BOUNDARY}

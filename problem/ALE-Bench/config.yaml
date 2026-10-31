@@ -1,0 +1,95 @@
+# Configuration for Heilbronn problem evolution (n=11)
+problem_name: "ALE-Bench"
+evolution_type: "code"
+coding_language: "cpp20"
+
+initial_program: "{TO_BE_REPLACED}"
+evaluator_path: "problem/ALE-Bench/evaluator.py"
+
+# LLM configuration
+model: "gemini-3-flash-preview"
+max_tokens: 65536
+
+# Evolution configuration
+mutation_rate: 0.5
+crossover_rate: 0.5
+max_retries: 3
+hard_constrains: true
+
+# Property configuration
+property_config:
+  enabled: true
+
+  properties:
+    - name: "code_quality"
+      description: "A value between 0 and 1 reflecting overall code clarity and structural quality, including readability and maintainability. Higher values indicate code that is easier for humans to understand, modify, extend, and debug."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview"
+
+    - name: "marginal_utility"
+      description: "Quantifies the marginal return on evolutionary investment. High values indicate significant structural headroom and growth potential; low values signify optimization saturation and diminishing returns."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview"
+
+# Prompt configuration
+prompt:
+  role_description: |
+    You are an expert competitive programmer and algorithm engineer specializing in Heuristic Optimization (e.g., Simulated Annealing, Local Search, Meta-heuristics). 
+    Your role is to design and evolve high-performance solvers for AtCoder Heuristic Contests (AHC). You excel at balancing exploration and exploitation within strict time limits.
+
+  problem_description: |
+    {TO_BE_REPLACED}
+
+  objectives:
+    - name: "score"
+      type: "max"
+      description: "Maximize the score of the algorithm."
+      benchmark: null
+
+  constraints: |
+    - The solution must be self-contained in a single C++ file.
+    - Use standard input (stdin) to read test cases and standard output (stdout) to print the final answer.
+    - Adhere strictly to the time and memory limits provided in the problem description.
+    - Use cpp20 standard.
+
+  expert_insights: |
+    To achieve a high score in ALE-Bench/AHC tasks, consider the following algorithmic patterns:
+    - **Initial Solution**: Start with a fast greedy constructive algorithm to ensure a baseline score.
+    - **Iterative Improvement**: Implement Simulated Annealing (SA) or Hill Climbing. Define a robust 'neighbor' state by making small, incremental changes to the current solution.
+    - **State Representation**: Design an efficient data structure to represent the solution state, allowing for rapid incremental score updates (Delta Evaluation).
+    - **Diversity**: Avoid getting stuck in local optima by using multiple restarts or adaptive temperature schedules in SA.
+
+  cold_start_template: |
+    # EVOLVE-BLOCK-START
+    #include <bits/stdc++.h>
+    using namespace std;
+    
+    int main() {
+        ios::sync_with_stdio(false);
+        cin.tie(nullptr);
+
+        // Read input from standard input (stdin) via `cin`.
+        // TODO: Implement your heuristic optimization here.
+        // Write output to standard output (stdout) via `cout`.
+
+        return 0;
+    }
+    // EVOLVE-BLOCK-END
+
+# Evaluator configuration
+evaluation:
+  timeout: 300 # Evaluation timeout in seconds
+
+population:
+  iterations: 50
+  population_size: 10
+  island_num: 2
+  bins_num: 3
+  ind_num_per_cell: 2
+  pareto_archive_size: 10
+
+  migration_interval: 20
+  migration_top_k: 1
+  migration_poll_seconds: 1

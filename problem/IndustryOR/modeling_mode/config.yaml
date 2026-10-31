@@ -1,0 +1,107 @@
+# IndustryOR — Gurobi modeling mode (same dataset as normal; individual = executable Python + gurobipy)
+problem_name: "IndustryOR"
+evolution_type: "modeling"
+coding_language: "python"
+
+# Optional: override default cold-start code template (allows gurobipy; see file content)
+generator_template_file: "problem/IndustryOR/modeling_mode/prompts/generation_template_gurobi.txt"
+
+# Path configuration
+init_solution_dir: "problem/IndustryOR/modeling_mode/init_solution"
+evaluator_path: "problem/IndustryOR/modeling_mode/evaluator.py"
+
+# LLM configuration
+model: "gemini-3-flash-preview"
+max_tokens: 65536
+
+# Evolution configuration
+mutation_rate: 0.45
+crossover_rate: 0.55
+hard_constraints: true
+
+# Property configuration
+property_config:
+  enabled: true
+
+  properties:
+    - name: "reasoning_rigor"
+      description: "A value between 0 and 1 measuring modeling soundness: correct problem interpretation, coherent variables/constraints/objective alignment with the statement, and defensible Gurobi formulation choices."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview"
+
+    - name: "marginal_utility"
+      description: "Quantifies the marginal return on evolutionary investment. High values indicate significant structural headroom and growth potential; low values signify optimization saturation and diminishing returns."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview"
+
+# Prompt configuration
+prompt:
+  role_description: |
+    You are an expert in operations research and Gurobi (gurobipy) mathematical programming.
+    Your role is to translate industrial OR problem statements into a correct optimization model, implement it in Python with gurobipy, solve it, and report the optimal objective value (or the quantity requested by the problem) in the prescribed machine-readable format. Evolution minimizes the absolute gap between that reported value and the ground truth.
+
+  problem_description: |
+    {TO_BE_REPLACED}
+
+  objectives:
+    - name: "answer_gap"
+      type: "min"
+      description: "Absolute difference between the script's reported numeric answer and the ground truth; optimal is 0."
+      benchmark: 0.0
+
+  constraints: |
+    - Read the full problem description and encode every stated constraint in the Gurobi model.
+    - Use gurobipy only (no other MILP solvers). Prefer clear variable names and comments for major constraint groups.
+    - After model.optimize(), handle status: if optimal, report the numeric answer the problem asks for (usually the objective value or a specified expression). If infeasible/unbounded/time-limited, still print <FINAL_ANSWER> with a best-effort numeric placeholder (e.g. 0 or nan) — the evaluator maps that to an answer_gap fitness (minimize distance to ground truth).
+    - You must print exactly one answer block to stdout: <FINAL_ANSWER>number</FINAL_ANSWER> with no extra text inside the tags (number only, valid float).
+    - Set model parameters to reduce log noise in evaluation, e.g. model.setParam('OutputFlag', 0) when appropriate.
+
+  expert_insights: |
+    Linearize where possible; prefer tight formulations over loose big-M. If the problem is integer-heavy, consider symmetry breaking only when justified by the text.
+
+  cold_start_template: |
+    import gurobipy as gp
+
+    def build_and_solve():
+        model = gp.Model()
+        model.setParam("OutputFlag", 0)
+        # EVOLVE-BLOCK-START
+        # TODO: define variables, constraints, and objective from the problem description
+        # EVOLVE-BLOCK-END
+        model.optimize()
+        if model.Status == gp.GRB.OPTIMAL:
+            answer = float(model.ObjVal)
+        else:
+            answer = float("nan")
+        print(f"<FINAL_ANSWER>{answer}</FINAL_ANSWER>")
+
+        return answer
+
+    answer = build_and_solve()
+
+# Task context configuration
+task_context:
+  enabled: false
+
+# Evaluator configuration
+evaluation:
+  have_ground_truth: true
+  stop_on_ground_truth_match: true
+  ground_truth_match_tol: 1e-4
+  timeout: 900
+  max_retries: 3
+
+# Population configuration
+population:
+  iterations: 40
+  population_size: 10
+  island_num: 1
+  bins_num: 3
+  ind_num_per_cell: 2
+  pareto_archive_size: 10
+
+  migration_interval: 8
+  migration_top_k: 1
+  migration_poll_seconds: 1

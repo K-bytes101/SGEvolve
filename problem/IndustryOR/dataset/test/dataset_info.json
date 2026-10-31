@@ -1,0 +1,50 @@
+{
+  "builder_name": "json",
+  "citation": "",
+  "config_name": "default",
+  "dataset_name": "industry_or",
+  "dataset_size": 109601,
+  "description": "",
+  "download_checksums": {
+    "hf://datasets/CardinalOperations/IndustryOR@e1bb6174927454e8d66aebe5c512857e2eb0a031/IndustryOR.json": {
+      "num_bytes": 115295,
+      "checksum": null
+    }
+  },
+  "download_size": 115295,
+  "features": {
+    "en_question": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "en_answer": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "difficulty": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "id": {
+      "dtype": "int64",
+      "_type": "Value"
+    }
+  },
+  "homepage": "",
+  "license": "",
+  "size_in_bytes": 224896,
+  "splits": {
+    "test": {
+      "name": "test",
+      "num_bytes": 109601,
+      "num_examples": 100,
+      "dataset_name": "industry_or"
+    }
+  },
+  "version": {
+    "version_str": "0.0.0",
+    "major": 0,
+    "minor": 0,
+    "patch": 0
+  }
+}

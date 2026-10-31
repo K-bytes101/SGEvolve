@@ -1,0 +1,108 @@
+# Configuration for max-to-min distance ratio evolution (n=16)
+problem_name: "sofa_moving"
+evolution_type: "code"
+coding_language: "python"
+
+# Path configuration
+init_solution_dir: "problem/sofa_moving/init_solution"
+evaluator_path: "problem/sofa_moving/evaluator.py"
+
+# LLM configuration
+model: "gemini-3-flash-preview"
+max_tokens: 32768
+
+# Evolution configuration
+mutation_rate: 0.45
+crossover_rate: 0.55
+hard_constraints: true
+
+# Property configuration
+property_config:
+  enabled: true
+
+  properties:
+    - name: "code_quality"
+      description: "A value between 0 and 1 reflecting overall code clarity and structural quality, including readability and maintainability. Higher values indicate code that is easier for humans to understand, modify, extend, and debug."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview"
+
+    - name: "marginal_utility"
+      description: "Quantifies the marginal return on evolutionary investment. High values indicate significant structural headroom and growth potential; low values signify optimization saturation and diminishing returns."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview"
+
+# Prompt configuration for Moving Sofa Problem
+prompt:
+  role_description: |
+    You are an expert mathematician specializing in kinematic geometry, topology, and global optimization.
+    Your role is to evolve and optimize Python code that defines the motion path of a rigid body through an L-shaped corridor. 
+    Your goal is to maximize the "Sofa Area" — the largest area that can successfully traverse the corner given your proposed path.
+
+  problem_description: |
+    The task is to define a continuous motion path (x(θ), y(θ)) for a sofa as it rotates from θ = 0 to θ = π/2.
+    The corridor boundaries are defined by the polygon: [(-5, 0), (0, 0), (0, 5), (1, 5), (1, -1), (-5, -1)].
+    - Inner corner: (0, 0)
+    - Outer corner: (1, -1)
+    
+    The evaluation logic: 
+    For every angle θ in [0, π/2], the corridor is transformed into the sofa's reference frame. 
+    The sofa's shape is the intersection of the corridor's area across all θ. 
+    The objective is to maximize the Area of this intersection.
+    A famous benchmark is Gerver's constant, approximately 2.2195.
+
+  objectives:
+    - name: "sofa_area"
+      type: "max"
+      description: "Maximize the area of the intersection of all transformed corridors along the path."
+      benchmark: 2.2195
+
+  constraints: |
+    - The function must take a single float `theta` (angle in radians, 0 to π/2) as input.
+    - The function must return a tuple or list `(x, y)` representing the translation of the sofa at that angle.
+    - The path should ideally be smooth (continuous derivatives) to yield a single, well-defined sofa shape.
+
+  expert_insights: |
+    Strategic geometric directions:
+    - **Reparameterize motion as a function space problem**:
+      - Do NOT search over trajectories directly
+      - Represent the motion path using a low-dimensional functional basis (e.g., Fourier series)
+      - Encode symmetry explicitly in the parameterization to reduce search complexity
+    - Turn the problem into black-box optimization:
+      - Define objective = area (or volume) of the accumulated intersection
+      - Optimize over the parameterized trajectory coefficients
+      - The geometry engine acts as a simulator inside the objective
+    - Separate optimization from inference:
+      - Perform expensive optimization once (offline)
+      - Compile the result into a fast trajectory function for runtime queries
+    
+  cold_start_template: |
+    # EVOLVE-BLOCK-START
+    def get_sofa_pose(theta: float) -> Tuple[float, float]:
+        x = 0
+        y = sin(theta)
+        return x, y
+    # EVOLVE-BLOCK-END
+
+# Task context configuration
+task_context:
+  enabled: false
+
+# Evaluator configuration
+evaluation:
+  timeout: 600
+  max_retries: 3
+
+# Population configuration
+population:
+  iterations: 200
+  population_size: 20
+  island_num: 2
+  bins_num: 3
+  ind_num_per_cell: 2
+  pareto_archive_size: 10
+
+  migration_interval: 25
+  migration_top_k: 1
+  migration_poll_seconds: 1

@@ -1,0 +1,95 @@
+# Configuration for evolution
+problem_name: "circle packing"
+evolution_type: "code"
+coding_language: "python"
+
+# Path configuration
+init_solution_dir: "problem/circle_packing/init_solution"
+evaluator_path: "problem/circle_packing/evaluator.py"
+
+# LLM configuration
+model: "gemini-3-flash-preview"
+max_tokens: 16384
+
+# Evolution configuration
+mutation_rate: 0.45
+crossover_rate: 0.55
+hard_constraints: true
+
+# Property configuration
+property_config:
+  enabled: true
+
+  properties:
+    - name: "code_quality"
+      description: "A value between 0 and 1 reflecting overall code clarity and structural quality, including readability, efficiency and maintainability. Higher values indicate code that is easier for humans to understand, modify, extend, and debug."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview"
+
+    - name: "marginal_utility"
+      description: "Quantifies the marginal return on evolutionary investment. High values indicate significant structural headroom and growth potential; low values signify optimization saturation and diminishing returns."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview"
+
+# Prompt configuration
+prompt:
+  role_description: |
+    You are an expert mathematician specializing in circle packing problems and computational geometry. 
+    Your role is to help evolve and optimize code solutions for complex mathematical problems by generating, mutating, and combining code snippets based on expert knowledge and problem requirements.
+
+  problem_description: |
+    The task is to improve a constructor function that directly produces a specific arrangement of 26 circles in a unit square (1x1) area. Each circle is defined by its center coordinates (x, y) and its radius (r).
+
+  objectives:
+    - name: "sum_of_radii"
+      type: "max"
+      description: "Maximize the total sum of the radii of all circles packed within the unit square."
+      benchmark: 2.635983
+
+  constraints: |
+    - Circles must not overlap with each other.
+    - Circles must be fully contained within the square area.
+
+  expert_insights: |
+    You can use various Python optimization libraries to enhance the effectiveness of the solution.
+    Key insights to explore:
+    1. The optimal arrangement likely involves variable-sized circles
+    2. A pure hexagonal arrangement may not be optimal due to edge effects
+    3. The densest known circle packings often use a hybrid approach
+    4. The optimization routine is critically important - simple physics-based models with carefully tuned parameters
+    5. Consider strategic placement of circles at square corners and edges
+    6. Adjusting the pattern to place larger circles at the center and smaller at the edges
+    7. The math literature suggests special arrangements for specific values of n
+
+    Focus on breaking through the plateau by trying fundamentally different approaches - don't just tweak parameters.
+
+  cold_start_template: |
+    # EVOLVE-BLOCK-START
+    # TODO: your code here, and you can use various Python optimization libraries you want. Use function search_algorithm(num_circles=26) to return the centers and radii. You are free to add other auxiliary functions to improve readability and maintainability.
+    # Returns: centers (numpy array of shape (n, 2)) and radii (numpy array of shape (n,))
+    # EVOLVE-BLOCK-END
+    centers, radii = search_algorithm(num_circles=26)
+
+# Task context configuration
+task_context:
+  enabled: false
+
+# Evaluator configuration
+evaluation:
+  timeout: 600
+  max_retries: 3
+
+# Population configuration
+population:
+  iterations: 10
+  population_size: 20
+  island_num: 2
+  bins_num: 3
+  ind_num_per_cell: 2
+  pareto_archive_size: 10
+
+  migration_interval: 25
+  migration_top_k: 1
+  migration_poll_seconds: 1

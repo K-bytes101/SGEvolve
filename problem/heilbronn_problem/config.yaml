@@ -1,0 +1,91 @@
+# Configuration for Heilbronn problem evolution (n=11)
+problem_name: "heilbronn_problem"
+evolution_type: "code"
+coding_language: "python"
+
+init_solution_dir: "problem/heilbronn_problem/init_solution"
+evaluator_path: "problem/heilbronn_problem/evaluator.py"
+
+# LLM configuration
+model: "gemini-3-flash-preview-thinking"
+max_tokens: 16384
+
+# Evolution configuration
+mutation_rate: 0.45
+crossover_rate: 0.55
+hard_constrains: true
+
+# Property configuration
+property_config:
+  enabled: true
+
+  properties:
+    - name: "code_quality"
+      description: "A value between 0 and 1 reflecting overall code clarity and structural quality, including readability and maintainability. Higher values indicate code that is easier for humans to understand, modify, extend, and debug."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview-thinking"
+
+    - name: "marginal_utility"
+      description: "Quantifies the marginal return on evolutionary investment. High values indicate significant structural headroom and growth potential; low values signify optimization saturation and diminishing returns."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview-thinking"
+
+# Prompt configuration
+prompt:
+  role_description: |
+    You are an expert mathematician specializing in Heilbronn problem and computational geometry. 
+    Your role is to help evolve and optimize code solutions for complex mathematical problems by generating, mutating, and combining code snippets based on expert knowledge and problem requirements.
+
+  problem_description: |
+    The task is to write Python code to discover point configurations inside an equilateral triangle of side length 1 that maximize the minimum area of triangles formed by any three points, as studied in the Heilbronn problem. The objective is to surpass the current benchmark value of 0.0158.
+    The positions of the points are decision variables subject to prescribed geometric constraints. Your role is to formulate and test mathematical hypotheses about the optimal structure of point configurations, while evolving and improving the code.
+    The number of points is fixed at 11.
+
+  objectives:
+    - name: "min_triangle_area"
+      type: "max"
+      description: "Maximize the minimum triangle area of all triangles formed by any three points in the given set."
+      target: 0.015818
+
+  constraints: |
+    - Exactly 11 points must lie within a fixed equilateral triangle of side length 1.
+    - The base of the triangle lies on the x-axis, and the left endpoint of the base is located at the origin (0, 0).
+    - Points may be placed anywhere inside the triangle, including on its boundary.
+
+  expert_insights: |
+    You can use various Python optimization libraries to enhance the effectiveness of the solution.
+    Key geometric insights:
+    - Any configuration resulting in three collinear points has a score of 0. Hard-clipping points to boundaries is a common cause of this failure and must be avoided.
+      Dangerous strategies to avoid: point symmetric placements, rotating placements around a center, Angel-based(sin/cos function) placements. These approaches often lead to three collinear points.
+    - **Good configurations usually place some points on edges or near vertices of the triangle.** Solutions with all points strictly inside the domain are rarely optimal.
+    - **The known best solution** is Axisymmetric arrangements with **two points(may have different offset) on each side(this approach wont lead to three collinear points) and five points inside.**
+    - **RESEARCH DIRECTION: INTELLIGENT STRUCTURAL DESIGN**:
+      The true optimal solution is unlikely to be random, but a highly specific, structured, and possibly symmetric arrangement. Your task is to propose and implement a novel geometric construction based on a clear hypothesis. 
+      Your code should reflect a clear geometric idea and read like a mathematical blueprint, explicitly computing the coordinates of the 11 points rather than relying on brute-force randomness.
+    - Although the objective is not to maximize minimum pairwise distance, good solutions tend to avoid extreme clustering. A relatively uniform nearest-neighbor distance distribution is a positive indicator.
+
+  cold_start_template: |
+    # EVOLVE-BLOCK-START
+    # TODO: your code here, and you can use various Python optimization libraries you want. Use "points = construct_points(num_points=11)" to generate the points. You are free to add other auxiliary functions to improve readability and maintainability.
+    # Returns: points (numpy array of shape (11, 2))
+    # EVOLVE-BLOCK-END
+    points = construct_points(num_points=11)
+
+# Evaluator configuration
+evaluation:
+  timeout: 300 # Evaluation timeout in seconds
+  max_retries: 2 # Max retries for failed evaluations
+
+population:
+  iterations: 200
+  population_size: 20
+  island_num: 2
+  bins_num: 3
+  ind_num_per_cell: 2
+  pareto_archive_size: 10
+
+  migration_interval: 25
+  migration_top_k: 1
+  migration_poll_seconds: 1

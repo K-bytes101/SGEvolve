@@ -1,0 +1,95 @@
+# Configuration for max-to-min distance ratio evolution (n=16)
+problem_name: "max_to_min_distance_ratio"
+evolution_type: "code"
+coding_language: "python"
+
+# Path configuration
+initial_program: "problem/max_to_min_distance_ratio/initial_program.py"
+evaluator_path: "problem/max_to_min_distance_ratio/evaluator.py"
+
+# LLM configuration
+model: "gemini-3-flash-preview-thinking"
+max_tokens: 16384
+
+# Evolution configuration
+mutation_rate: 0.45
+crossover_rate: 0.55
+hard_constraints: true
+
+# Property configuration
+property_config:
+  enabled: true
+
+  properties:
+    - name: "code_quality"
+      description: "A value between 0 and 1 reflecting overall code clarity and structural quality, including readability and maintainability. Higher values indicate code that is easier for humans to understand, modify, extend, and debug."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview-thinking"
+
+    - name: "marginal_utility"
+      description: "Quantifies the marginal return on evolutionary investment. High values indicate significant structural headroom and growth potential; low values signify optimization saturation and diminishing returns."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview-thinking"
+
+# Prompt configuration
+prompt:
+  role_description: |
+    You are an expert mathematician specializing in computational geometry and optimization.
+    Your role is to evolve and optimize Python code that places 16 points in a unit square to achieve the best geometric spacing structure under the max-to-min distance-ratio criterion.
+
+  problem_description: |
+    The task is to construct exactly 16 points in the unit square [0,1] x [0,1].
+    The objective is to minimize the ratio: (maximum pairwise distance among all points) / (minimum pairwise distance among all points).
+    Lower values are better.
+
+    This objective rewards configurations that keep nearest pairs as far apart as possible while controlling the global spread.
+    A known strong benchmark is approximately 3.59016.
+
+  objectives:
+    - name: "max_to_min_ratio"
+      type: "min"
+      description: "Minimize the ratio of maximum pairwise distance to minimum pairwise distance for 16 points in the unit square."
+      benchmark: 3.59016
+
+  constraints: |
+    - Exactly 16 points must be returned.
+    - Output must be a NumPy array with shape (16, 2).
+    - Every coordinate must lie in [0, 1] (within numerical tolerance).
+    - No two points may coincide (minimum pairwise distance must be strictly positive).
+
+  expert_insights: |
+    Useful geometric directions:
+    - High-quality solutions are often highly structured rather than random.
+    - Rotationally symmetric shell-like layouts can outperform naive grids.
+    - Good candidates tend to balance local spacing (large minimum distance) and global spread (controlled maximum distance).
+    - If many point pairs are close to the minimum distance simultaneously, the configuration is usually more stable.
+    - Avoid accidental degeneracy such as duplicate points or near-duplicates.
+
+  cold_start_template: |
+    # TODO: your code here, and you can use various Python optimization libraries you want. Use "points = construct_points(num_points=16)" to generate the points. You are free to add other auxiliary functions to improve readability and maintainability.
+    # Returns: points (numpy array of shape (16, 2))
+    points = construct_points(num_points=16)
+
+# Task context configuration
+task_context:
+  enabled: false
+
+# Evaluator configuration
+evaluation:
+  timeout: 600
+  max_retries: 3
+
+# Population configuration
+population:
+  iterations: 200
+  population_size: 20
+  island_num: 2
+  bins_num: 3
+  ind_num_per_cell: 2
+  pareto_archive_size: 10
+
+  migration_interval: 25
+  migration_top_k: 2
+  migration_poll_seconds: 2

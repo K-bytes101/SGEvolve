@@ -1,0 +1,91 @@
+# Configuration for 7D sphere packing constructor evolution (n=26)
+problem_name: "sphere packing 7D"
+evolution_type: "code"
+coding_language: "python"
+
+# Path configuration
+init_solution_dir: "problem/sphere_packing_7D/init_solution"
+evaluator_path: "problem/sphere_packing_7D/evaluator.py"
+
+# LLM configuration
+model: "gemini-3-flash-preview-thinking"
+max_tokens: 32768
+
+# Evolution configuration
+mutation_rate: 0.45
+crossover_rate: 0.55
+hard_constrains: true
+
+# Property configuration
+property_config:
+  enabled: true
+
+  properties:
+    - name: "code_quality"
+      description: "A value between 0 and 1 reflecting overall code clarity and structural quality, including readability and maintainability. Higher values indicate code that is easier for humans to understand, modify, extend, and debug."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview-thinking"
+
+    - name: "marginal_utility"
+      description: "Quantifies the marginal return on evolutionary investment. High values indicate significant structural headroom and growth potential; low values signify optimization saturation and diminishing returns."
+      range: [0, 1]
+      for_llm: true
+      evaluator: "gemini-3-flash-preview-thinking"
+
+# Prompt configuration
+prompt:
+  role_description: |
+    You are an expert mathematician specializing in sphere packing problems and computational geometry. 
+    Your role is to help evolve and optimize code solutions for complex mathematical problems by generating, mutating, and combining code snippets based on expert knowledge and problem requirements.
+
+  problem_description: |
+    The task is to improve a constructor function that optimizes the spatial arrangement of 26 hyperspheres within a 7D unit hypercube ([0,1]^7) to achieve an improved packing configuration. Each hypersphere is specified by its center coordinates (x1, ..., x7) and its radius (r).
+  
+  objectives:
+    - name: "sum_of_radii"
+      direction: "max"
+      description: "Maximize the total sum of the radii of all hyperspheres packed inside the 7D unit hypercube ([0,1]^7)."
+      benchmark: 10.395
+  
+  constraints: |
+    - Hyperspheres must not overlap with each other.
+    - Hyperspheres must be fully contained within the 7D unit hypercube.
+    - You MUST add `centers, radii= construct_packing(num_spheres=26)` at the end of the code to enable subsequent testing.
+
+  expert_insights: |
+    You can use various Python optimization libraries to enhance the effectiveness of the solution.
+    Key geometric insights:
+    - In 7D, local geometric intuitions from 3D (e.g., FCC/HCP layering) no longer directly apply.
+    - Boundary effects from the 7D hypercube are significant and make finite packing much harder than unconstrained infinite-space packing.
+    - Using varied radii can improve space utilization versus forcing equal-radius hyperspheres.
+    - Strong symmetry is not always optimal under finite boundary constraints.
+
+  cold_start_template: |
+    # EVOLVE-BLOCK-START
+    # TODO: your code here, and you can use various Python optimization libraries you want. Use "centers, radii= construct_packing(num_spheres=26)" to generate the centers and radii. You are free to add other auxiliary functions to improve readability and maintainability.
+    # Returns: centers (numpy array of shape (26, 7)) and radii (numpy array of shape (26,))
+    # EVOLVE-BLOCK-END
+    centers, radii= construct_packing(num_spheres=26)
+
+# Task context configuration
+task_context:
+  enabled: false
+
+# Evaluator configuration
+evaluation:
+  timeout: 300 # Evaluation timeout in seconds
+  max_retries: 2 # Max retries for failed evaluations
+
+# Population configuration
+population:
+  iterations: 200
+  population_size: 20
+  island_num: 2
+  bins_num: 3
+  ind_num_per_cell: 2
+  pareto_archive_size: 10
+
+  migration_interval: 25
+  migration_top_k: 1
+  migration_poll_seconds: 1

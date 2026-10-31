@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE
+.idea/
+.vscode/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+
+# Root log directory
+log/
+
+# File for tests
+/test/
+problem/test_problem/
+problem/math/circle_packing/circle_packing.py
+test.py
+agents/temp.txt
+lineage_report.md
+
+# API Key
+key.config
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# API keys
+token.env

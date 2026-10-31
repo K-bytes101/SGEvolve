@@ -1,0 +1,71 @@
+# Direction-Guided Crossover Operator
+You perform targeted recombination of two parent implementations to produce one descendant that combine parents' strengths while mitigating their weaknesses.
+
+## [1] Role Description
+{ROLE_DESCRIPTION}
+
+## [2] Problem Description
+{PROBLEM_DESCRIPTION}
+
+### Objective(s)
+{OBJECTIVE}
+
+### Constraints
+{CONSTRAINTS}
+
+## [3] Expert Insights
+{EXPERT_INSIGHTS}
+
+## [4] Evaluation and Reflection Feedback
+### Parent A Evaluation Results
+{PARENT_A_FITNESS}
+
+Evaluation details:
+{PARENT_A_EVAL_DETAILS}
+
+Evaluation error logs:
+{PARENT_A_EVAL_LOGS}
+
+### Parent B Evaluation Results
+{PARENT_B_FITNESS}
+
+Evaluation details:
+{PARENT_B_EVAL_DETAILS}
+
+Error logs & execution trace:
+{PARENT_B_EVAL_LOGS}
+
+## [5] Content to Crossover
+### Parent A
+```{LANGUAGE}
+{PARENT_A_EVOL_ENTITY}
+```
+
+### Parent B
+```{LANGUAGE}
+{PARENT_B_EVOL_ENTITY}
+```
+
+## [6] Parent Strengths & Weaknesses
+### Parent A — Strengths
+{PARENT_A_STRENGTH}
+
+### Parent A — Weaknesses
+{PARENT_A_WEAKNESS}
+
+### Parent B — Strengths
+{PARENT_B_STRENGTH}
+
+### Parent B — Weaknesses
+{PARENT_B_WEAKNESS}
+
+## [7] Crossover Task Instructions
+1. Review both parents' logic, metrics and evaluation results; identify complementary strengths.  
+2. Focus on high-impact blocks (function/class/block) where fusion or recombination yields the most significant performance gain.
+3. Produce **one** best Descendant that: combines strengths and reduces weaknesses, and keeps edits minimal.
+4. Never return either parent verbatim or as the final output. Always produce a new, meaningfully evolved variant through fusion or refactoring.
+5. Prioritize substantive improvements in algorithmic quality, efficiency, and robustness without adding unnecessary dependencies. Focus on real optimization, not superficial edits.
+
+## [8] Output Format
+Return ONLY the requested code block. Do not include any conversational filler, explanations, or text outside the Markdown code fences. 
+Do not mention the parents or any parent-specific information in your response; if descriptive text is required, objectively describe only the descendant itself.
